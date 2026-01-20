@@ -480,6 +480,27 @@
         display: none;
       }
 
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .field {
+        min-width: 0;
+      }
+
+      .helper-text {
+        margin: 8px 0 0;
+        font-size: 12px;
+        color: var(--muted);
+        line-height: 1.4;
+      }
+
+      .helper-text.error {
+        color: #b91c1c;
+      }
+
       @media (max-width: 980px) {
         .content {
           grid-template-columns: 1fr;
@@ -617,8 +638,8 @@
                 <div id="stepMeal" class="step">
                   <div class="step-number">2</div>
                   <div class="step-label">
-                    <strong>Select Meal</strong>
-                    <span>Optional preference</span>
+                    <strong>Trip Details</strong>
+                    <span>Pickup, drop, meal</span>
                   </div>
                 </div>
                 <div id="stepConfirm" class="step">
@@ -632,8 +653,24 @@
 
               <div class="detail-row">
                 <div class="label">Route</div>
-                <div class="value">Ahmedabad → Mumbai</div>
+                <div id="routeValue" class="value">Ahmedabad (Paldi) → Mumbai (Dadar)</div>
               </div>
+
+              <div class="form-grid" aria-label="Pickup and drop selection">
+                <div class="field">
+                  <label for="pickupSelect">Pickup Station</label>
+                  <div class="select-field">
+                    <select id="pickupSelect" name="pickup"></select>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="dropSelect">Drop Station</label>
+                  <div class="select-field">
+                    <select id="dropSelect" name="drop"></select>
+                  </div>
+                </div>
+              </div>
+              <p id="routeError" class="helper-text error hidden">Pickup must be before drop.</p>
 
               <div class="detail-row">
                 <div class="label">Selected Seat</div>
@@ -685,6 +722,76 @@
         const stepSeat = document.getElementById('stepSeat');
         const stepMeal = document.getElementById('stepMeal');
         const stepConfirm = document.getElementById('stepConfirm');
+        const pickupSelect = document.getElementById('pickupSelect');
+        const dropSelect = document.getElementById('dropSelect');
+        const routeValue = document.getElementById('routeValue');
+        const routeError = document.getElementById('routeError');
+
+        const stations = [
+          'Ahmedabad (Paldi)',
+          'Nadiad',
+          'Anand',
+          'Vadodara',
+          'Bharuch',
+          'Surat',
+          'Navsari',
+          'Valsad',
+          'Vapi',
+          'Mumbai (Dadar)'
+        ];
+
+        function buildStationOption(name) {
+          const option = document.createElement('option');
+          option.value = name;
+          option.textContent = name;
+          return option;
+        }
+
+        function initializeStations() {
+          stations.forEach((name) => {
+            pickupSelect.appendChild(buildStationOption(name));
+            dropSelect.appendChild(buildStationOption(name));
+          });
+
+          pickupSelect.value = stations[0];
+          dropSelect.value = stations[stations.length - 1];
+          updateRouteUI();
+        }
+
+        function stationIndex(name) {
+          return stations.indexOf(name);
+        }
+
+        function updateRouteUI() {
+          routeValue.textContent = `${pickupSelect.value} → ${dropSelect.value}`;
+        }
+
+        function ensureValidRoute() {
+          const pickupIndex = stationIndex(pickupSelect.value);
+          const dropIndex = stationIndex(dropSelect.value);
+
+          if (pickupIndex === -1 || dropIndex === -1) {
+            routeError.classList.remove('hidden');
+            confirmButton.setAttribute('disabled', 'disabled');
+            return false;
+          }
+
+          if (pickupIndex >= dropIndex) {
+            routeError.classList.remove('hidden');
+
+            if (pickupIndex < stations.length - 1) {
+              dropSelect.value = stations[pickupIndex + 1];
+            } else {
+              pickupSelect.value = stations[stations.length - 2];
+              dropSelect.value = stations[stations.length - 1];
+            }
+          } else {
+            routeError.classList.add('hidden');
+          }
+
+          updateRouteUI();
+          return routeError.classList.contains('hidden');
+        }
 
         function setFlowState(hasSelection) {
           if (!hasSelection) {
@@ -722,6 +829,7 @@
           summaryEmpty.classList.add('hidden');
           summaryPanel.classList.remove('hidden');
           setFlowState(true);
+          ensureValidRoute();
         }
 
         function hideSummary() {
@@ -732,6 +840,9 @@
         }
 
         confirmButton.addEventListener('click', () => {
+          if (!ensureValidRoute()) {
+            return;
+          }
           stepMeal.classList.remove('active');
           stepMeal.classList.add('completed');
 
@@ -761,6 +872,15 @@
           });
         });
 
+        pickupSelect.addEventListener('change', () => {
+          ensureValidRoute();
+        });
+
+        dropSelect.addEventListener('change', () => {
+          ensureValidRoute();
+        });
+
+        initializeStations();
         setFlowState(false);
       })();
     </script>

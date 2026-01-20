@@ -4,8 +4,8 @@
 The Sleeper Bus Ticket Booking System is a prototype application for booking sleeper seats on the Ahmedabad → Mumbai Express route with meal preference integration. It includes a FastAPI backend for seat availability and booking operations, a single-file HTML design prototype for the booking experience, and a mock machine learning workflow that estimates booking confirmation probability using a simple logistic regression model.
 
 ## Features
-- Seat availability endpoint exposing a 30-seat sleeper layout with booked/available status
-- Booking creation with passenger name and optional meal preference
+- Seat and station listing endpoints (30-seat sleeper layout plus intermediate stops)
+- Booking creation with pickup/drop station selection, passenger name, and optional meal preference
 - Meal preference update for an existing booking
 - Booking cancellation by seat identifier
 - Mock confirmation prediction pipeline (dataset generation, model training, probability output)
