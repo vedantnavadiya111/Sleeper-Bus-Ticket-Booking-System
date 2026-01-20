@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sleeper Bus Ticket Booking System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f6f8fc;
+        --card: #ffffff;
+        --text: #0f172a;
+        --muted: #475569;
+        --border: #e2e8f0;
+        --shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+        --shadow-soft: 0 8px 18px rgba(15, 23, 42, 0.10);
+
+        --seat-available: #f8fafc;
+        --seat-available-border: #cbd5e1;
+        --seat-booked: #475569;
+        --seat-selected: #2563eb;
+
+        --focus: rgba(37, 99, 235, 0.28);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        background: linear-gradient(180deg, #eef3fb 0%, var(--bg) 36%, var(--bg) 100%);
+        color: var(--text);
+      }
+
+      .page {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 28px 20px 42px;
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 18px;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.88);
+        backdrop-filter: blur(8px);
+        box-shadow: var(--shadow);
+      }
+
+      .title {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .title h1 {
+        font-size: 18px;
+        font-weight: 700;
+        margin: 0;
+        letter-spacing: -0.01em;
+      }
+
+      .title .subtitle {
+        margin: 0;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .legend {
+        display: flex;
+        gap: 14px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 12px;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+
+      .legend-swatch {
+        width: 12px;
+        height: 12px;
+        border-radius: 4px;
+        border: 1px solid var(--seat-available-border);
+        background: var(--seat-available);
+      }
+
+      .legend-swatch.booked {
+        background: var(--seat-booked);
+        border-color: var(--seat-booked);
+      }
+
+      .legend-swatch.selected {
+        background: var(--seat-selected);
+        border-color: var(--seat-selected);
+      }
+
+      .content {
+        display: grid;
+        grid-template-columns: 1.3fr 0.9fr;
+        gap: 18px;
+        margin-top: 18px;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: var(--shadow-soft);
+      }
+
+      .card-header {
+        padding: 16px 16px 12px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+      }
+
+      .card-header h2 {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .card-header p {
+        margin: 0;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .bus-area {
+        padding: 16px;
+      }
+
+      .bus-shell {
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 14px;
+        background: linear-gradient(180deg, #ffffff 0%, #fbfdff 100%);
+      }
+
+      .bus-topline {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+
+      .bus-pill {
+        font-size: 12px;
+        color: var(--muted);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        padding: 6px 10px;
+        background: #ffffff;
+      }
+
+      .decks {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .deck {
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 12px;
+        background: #ffffff;
+      }
+
+      .deck-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+        gap: 10px;
+      }
+
+      .deck-title h3 {
+        margin: 0;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text);
+        letter-spacing: 0.01em;
+      }
+
+      .deck-title span {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .seat-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 26px 1fr;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .aisle {
+        height: 100%;
+        border-radius: 10px;
+        border: 1px dashed #cbd5e1;
+        background: linear-gradient(180deg, rgba(226, 232, 240, 0.25) 0%, rgba(226, 232, 240, 0.12) 100%);
+      }
+
+      .seat {
+        height: 28px;
+        border-radius: 8px;
+        border: 1px solid var(--seat-available-border);
+        background: var(--seat-available);
+        color: #0f172a;
+        font-size: 11px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease, border-color 120ms ease;
+        user-select: none;
+      }
+
+      .seat:hover {
+        box-shadow: 0 8px 14px rgba(15, 23, 42, 0.10);
+        transform: translateY(-1px);
+      }
+
+      .seat:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 4px var(--focus);
+      }
+
+      .seat.booked {
+        background: var(--seat-booked);
+        border-color: var(--seat-booked);
+        color: rgba(255, 255, 255, 0.90);
+        cursor: not-allowed;
+      }
+
+      .seat.booked:hover {
+        box-shadow: none;
+        transform: none;
+      }
+
+      .seat.selected {
+        background: var(--seat-selected);
+        border-color: var(--seat-selected);
+        color: #ffffff;
+        box-shadow: 0 10px 18px rgba(37, 99, 235, 0.22);
+      }
+
+      .summary {
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .summary-body {
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .muted {
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.4;
+        margin: 0;
+      }
+
+      .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 12px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: #fbfdff;
+      }
+
+      .detail-row .label {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .detail-row .value {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text);
+      }
+
+      label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text);
+        margin-bottom: 8px;
+      }
+
+      select {
+        width: 100%;
+        height: 40px;
+        border-radius: 12px;
+        border: 1px solid var(--border);
+        background: #ffffff;
+        padding: 0 12px;
+        font-family: inherit;
+        font-size: 13px;
+        color: var(--text);
+        box-shadow: 0 6px 14px rgba(15, 23, 42, 0.06);
+        outline: none;
+      }
+
+      select:focus {
+        border-color: #93c5fd;
+        box-shadow: 0 0 0 4px rgba(147, 197, 253, 0.35);
+      }
+
+      .summary-placeholder {
+        border: 1px dashed #cbd5e1;
+        border-radius: 14px;
+        padding: 14px;
+        background: rgba(248, 250, 252, 0.7);
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      @media (max-width: 980px) {
+        .content {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="page">
+      <header class="topbar">
+        <div class="title">
+          <h1>Ahmedabad → Mumbai Express</h1>
+          <p class="subtitle">Sleeper coach layout with meal integration preview</p>
+        </div>
+        <div class="legend" aria-label="Seat status legend">
+          <div class="legend-item"><span class="legend-swatch"></span> Available</div>
+          <div class="legend-item"><span class="legend-swatch booked"></span> Booked</div>
+          <div class="legend-item"><span class="legend-swatch selected"></span> Selected</div>
+        </div>
+      </header>
+
+      <main class="content">
+        <section class="card" aria-label="Bus seat layout">
+          <div class="card-header">
+            <div>
+              <h2>Select Your Sleeper Seat</h2>
+              <p>2-left / aisle / 1-right layout</p>
+            </div>
+            <div class="bus-pill">Departure: 22:30</div>
+          </div>
+
+          <div class="bus-area">
+            <div class="bus-shell">
+              <div class="bus-topline">
+                <div class="bus-pill">Pickup: Ahmedabad (Paldi)</div>
+                <div class="bus-pill">Drop: Mumbai (Dadar)</div>
+              </div>
+
+              <div class="decks">
+                <div class="deck">
+                  <div class="deck-title">
+                    <h3>Upper Deck</h3>
+                    <span>U01–U15</span>
+                  </div>
+                  <div class="seat-grid" role="grid" aria-label="Upper deck seats">
+                    <button class="seat booked" type="button" data-seat="U01" aria-disabled="true">U01</button>
+                    <button class="seat" type="button" data-seat="U02">U02</button>
+                    <div class="aisle" aria-hidden="true"></div>
+                    <button class="seat" type="button" data-seat="U03">U03</button>
+
+                    <button class="seat" type="button" data-seat="U04">U04</button>
+                    <button class="seat" type="button" data-seat="U05">U05</button>
+                    <div class="aisle" aria-hidden="true"></div>
+                    <button class="seat booked" type="button" data-seat="U06" aria-disabled="true">U06</button>
+
+                    <button class="seat" type="button" data-seat="U07">U07</button>
+                    <button class="seat" type="button" data-seat="U08">U08</button>
+                    <div class="aisle" aria-hidden="true"></div>
+                    <button class="seat" type="button" data-seat="U09">U09</button>
+
+                    <button class="seat" type="button" data-seat="U10">U10</button>
+                    <button class="seat booked" type="button" data-seat="U11" aria-disabled="true">U11</button>
+                    <div class="aisle" aria-hidden="true"></div>
+                    <button class="seat" type="button" data-seat="U12">U12</button>
+
+                    <button class="seat" type="button" data-seat="U13">U13</button>
+                    <button class="seat" type="button" data-seat="U14">U14</button>
+                    <div class="aisle" aria-hidden="true"></div>
+                    <button class="seat booked" type="button" data-seat="U15" aria-disabled="true">U15</button>
+                  </div>
+                </div>
+
+                <div class="deck">
+                  <div class="deck-title">
+                    <h3>Lower Deck</h3>
+                    <span>L01–L15</span>
+                  </div>
+                  <div class="seat-grid" role="grid" aria-label="Lower deck seats">
+                    <button class="seat" type="button" data-seat="L01">L01</button>
+                    <button class="seat booked" type="button" data-seat="L02" aria-disabled="true">L02</button>
+                    <div class="aisle" aria-hidden="true"></div>
+                    <button class="seat" type="button" data-seat="L03">L03</button>
+
+                    <button class="seat" type="button" data-seat="L04">L04</button>
+                    <button class="seat" type="button" data-seat="L05">L05</button>
+                    <div class="aisle" aria-hidden="true"></div>
+                    <button class="seat" type="button" data-seat="L06">L06</button>
+
+                    <button class="seat booked" type="button" data-seat="L07" aria-disabled="true">L07</button>
+                    <button class="seat" type="button" data-seat="L08">L08</button>
+                    <div class="aisle" aria-hidden="true"></div>
+                    <button class="seat" type="button" data-seat="L09">L09</button>
+
+                    <button class="seat" type="button" data-seat="L10">L10</button>
+                    <button class="seat" type="button" data-seat="L11">L11</button>
+                    <div class="aisle" aria-hidden="true"></div>
+                    <button class="seat booked" type="button" data-seat="L12" aria-disabled="true">L12</button>
+
+                    <button class="seat" type="button" data-seat="L13">L13</button>
+                    <button class="seat" type="button" data-seat="L14">L14</button>
+                    <div class="aisle" aria-hidden="true"></div>
+                    <button class="seat" type="button" data-seat="L15">L15</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="card" aria-label="Booking summary">
+          <div class="card-header">
+            <div>
+              <h2>Booking Summary</h2>
+              <p>Seat selection and meal preference</p>
+            </div>
+          </div>
+
+          <div class="summary-body">
+            <div id="summaryEmpty" class="summary-placeholder">
+              <p class="muted">
+                Select an available seat to view your booking summary.
+              </p>
+            </div>
+
+            <div id="summaryPanel" class="hidden">
+              <div class="detail-row">
+                <div class="label">Route</div>
+                <div class="value">Ahmedabad → Mumbai</div>
+              </div>
+
+              <div class="detail-row">
+                <div class="label">Selected Seat</div>
+                <div id="selectedSeatValue" class="value">—</div>
+              </div>
+
+              <div>
+                <label for="mealSelect">Select Meal</label>
+                <select id="mealSelect" name="meal">
+                  <option value="Veg Thali">Veg Thali</option>
+                  <option value="Sandwich">Sandwich</option>
+                  <option value="None">None</option>
+                </select>
+              </div>
+
+              <p class="muted">
+                This prototype demonstrates selection states and layout only.
+              </p>
+            </div>
+          </div>
+        </aside>
+      </main>
+    </div>
+
+    <script>
+      (function () {
+        const seats = Array.from(document.querySelectorAll('.seat'));
+        const summaryEmpty = document.getElementById('summaryEmpty');
+        const summaryPanel = document.getElementById('summaryPanel');
+        const selectedSeatValue = document.getElementById('selectedSeatValue');
+
+        function clearSelection() {
+          seats.forEach((seat) => seat.classList.remove('selected'));
+        }
+
+        function showSummaryForSeat(seatLabel) {
+          selectedSeatValue.textContent = seatLabel;
+          summaryEmpty.classList.add('hidden');
+          summaryPanel.classList.remove('hidden');
+        }
+
+        function hideSummary() {
+          summaryPanel.classList.add('hidden');
+          summaryEmpty.classList.remove('hidden');
+          selectedSeatValue.textContent = '—';
+        }
+
+        seats.forEach((seat) => {
+          if (seat.classList.contains('booked')) {
+            seat.setAttribute('disabled', 'disabled');
+            return;
+          }
+
+          seat.addEventListener('click', () => {
+            const seatLabel = seat.getAttribute('data-seat');
+            const isSelected = seat.classList.contains('selected');
+
+            if (isSelected) {
+              seat.classList.remove('selected');
+              hideSummary();
+              return;
+            }
+
+            clearSelection();
+            seat.classList.add('selected');
+            showSummaryForSeat(seatLabel);
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>
