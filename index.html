@@ -316,18 +316,42 @@
         margin-bottom: 8px;
       }
 
+      .select-field {
+        position: relative;
+      }
+
+      .select-field::after {
+        content: "";
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 16px;
+        height: 16px;
+        pointer-events: none;
+        opacity: 0.85;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 16px 16px;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 20 20'%3E%3Cpath fill='%23475569' d='M5.6 7.8a1 1 0 0 1 1.4 0L10 10.8l3-3a1 1 0 1 1 1.4 1.4l-3.7 3.7a1 1 0 0 1-1.4 0L5.6 9.2a1 1 0 0 1 0-1.4Z'/%3E%3C/svg%3E");
+      }
+
       select {
         width: 100%;
-        height: 40px;
+        height: 44px;
         border-radius: 12px;
         border: 1px solid var(--border);
         background: #ffffff;
-        padding: 0 12px;
+        padding: 0 40px 0 12px;
         font-family: inherit;
-        font-size: 13px;
+        font-size: 14px;
+        font-weight: 600;
         color: var(--text);
         box-shadow: 0 6px 14px rgba(15, 23, 42, 0.06);
         outline: none;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
       }
 
       select:focus {
@@ -340,6 +364,116 @@
         border-radius: 14px;
         padding: 14px;
         background: rgba(248, 250, 252, 0.7);
+      }
+
+      .steps {
+        display: flex;
+        gap: 10px;
+        align-items: stretch;
+        margin-bottom: 6px;
+      }
+
+      .step {
+        flex: 1;
+        border: 1px solid var(--border);
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 10px 10px;
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        min-height: 44px;
+        color: var(--muted);
+      }
+
+      .step .step-number {
+        width: 22px;
+        height: 22px;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 700;
+        border: 1px solid var(--border);
+        background: #f8fafc;
+        color: var(--muted);
+        flex: 0 0 auto;
+      }
+
+      .step .step-label {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+      }
+
+      .step .step-label strong {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text);
+      }
+
+      .step .step-label span {
+        font-size: 11px;
+        color: var(--muted);
+        line-height: 1.2;
+      }
+
+      .step.active {
+        border-color: rgba(37, 99, 235, 0.35);
+        box-shadow: 0 10px 18px rgba(37, 99, 235, 0.10);
+      }
+
+      .step.active .step-number {
+        border-color: rgba(37, 99, 235, 0.45);
+        color: #1d4ed8;
+        background: rgba(37, 99, 235, 0.06);
+      }
+
+      .step.completed .step-number {
+        border-color: var(--seat-selected);
+        background: var(--seat-selected);
+        color: #ffffff;
+      }
+
+      .actions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+      }
+
+      .btn-primary {
+        width: 100%;
+        height: 42px;
+        border-radius: 12px;
+        border: 1px solid rgba(37, 99, 235, 0.35);
+        background: var(--seat-selected);
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 13px;
+        cursor: pointer;
+        box-shadow: 0 10px 18px rgba(37, 99, 235, 0.18);
+        transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
+      }
+
+      .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 14px 22px rgba(37, 99, 235, 0.22);
+      }
+
+      .btn-primary:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 4px var(--focus), 0 14px 22px rgba(37, 99, 235, 0.22);
+      }
+
+      .btn-primary:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: 0 8px 16px rgba(15, 23, 42, 0.08);
+        background: #94a3b8;
+        border-color: #94a3b8;
       }
 
       .hidden {
@@ -472,6 +606,30 @@
             </div>
 
             <div id="summaryPanel" class="hidden">
+              <div class="steps" aria-label="Booking flow steps">
+                <div id="stepSeat" class="step active">
+                  <div class="step-number">1</div>
+                  <div class="step-label">
+                    <strong>Select Seat</strong>
+                    <span>Choose an available sleeper</span>
+                  </div>
+                </div>
+                <div id="stepMeal" class="step">
+                  <div class="step-number">2</div>
+                  <div class="step-label">
+                    <strong>Select Meal</strong>
+                    <span>Optional preference</span>
+                  </div>
+                </div>
+                <div id="stepConfirm" class="step">
+                  <div class="step-number">3</div>
+                  <div class="step-label">
+                    <strong>Review</strong>
+                    <span>Confirm booking</span>
+                  </div>
+                </div>
+              </div>
+
               <div class="detail-row">
                 <div class="label">Route</div>
                 <div class="value">Ahmedabad → Mumbai</div>
@@ -484,11 +642,28 @@
 
               <div>
                 <label for="mealSelect">Select Meal</label>
-                <select id="mealSelect" name="meal">
-                  <option value="Veg Thali">Veg Thali</option>
-                  <option value="Sandwich">Sandwich</option>
-                  <option value="None">None</option>
-                </select>
+                <div class="select-field">
+                  <select id="mealSelect" name="meal">
+                    <option value="None">None</option>
+                    <option value="Veg Thali">Veg Thali</option>
+                    <option value="Jain Thali">Jain Thali</option>
+                    <option value="Non-Veg Thali">Non-Veg Thali</option>
+                    <option value="Veg Biryani">Veg Biryani</option>
+                    <option value="Chicken Biryani">Chicken Biryani</option>
+                    <option value="Paneer Roll">Paneer Roll</option>
+                    <option value="Grilled Sandwich">Grilled Sandwich</option>
+                    <option value="Idli Sambar">Idli Sambar</option>
+                    <option value="Masala Dosa">Masala Dosa</option>
+                    <option value="Poha">Poha</option>
+                    <option value="Fruit Bowl">Fruit Bowl</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="actions">
+                <button id="confirmButton" class="btn-primary" type="button" disabled>
+                  Confirm Booking
+                </button>
               </div>
 
               <p class="muted">
@@ -506,6 +681,37 @@
         const summaryEmpty = document.getElementById('summaryEmpty');
         const summaryPanel = document.getElementById('summaryPanel');
         const selectedSeatValue = document.getElementById('selectedSeatValue');
+        const confirmButton = document.getElementById('confirmButton');
+        const stepSeat = document.getElementById('stepSeat');
+        const stepMeal = document.getElementById('stepMeal');
+        const stepConfirm = document.getElementById('stepConfirm');
+
+        function setFlowState(hasSelection) {
+          if (!hasSelection) {
+            stepSeat.classList.add('active');
+            stepSeat.classList.remove('completed');
+
+            stepMeal.classList.remove('active');
+            stepMeal.classList.remove('completed');
+
+            stepConfirm.classList.remove('active');
+            stepConfirm.classList.remove('completed');
+
+            confirmButton.setAttribute('disabled', 'disabled');
+            return;
+          }
+
+          stepSeat.classList.remove('active');
+          stepSeat.classList.add('completed');
+
+          stepMeal.classList.add('active');
+          stepMeal.classList.remove('completed');
+
+          stepConfirm.classList.add('active');
+          stepConfirm.classList.remove('completed');
+
+          confirmButton.removeAttribute('disabled');
+        }
 
         function clearSelection() {
           seats.forEach((seat) => seat.classList.remove('selected'));
@@ -515,13 +721,23 @@
           selectedSeatValue.textContent = seatLabel;
           summaryEmpty.classList.add('hidden');
           summaryPanel.classList.remove('hidden');
+          setFlowState(true);
         }
 
         function hideSummary() {
           summaryPanel.classList.add('hidden');
           summaryEmpty.classList.remove('hidden');
           selectedSeatValue.textContent = '—';
+          setFlowState(false);
         }
+
+        confirmButton.addEventListener('click', () => {
+          stepMeal.classList.remove('active');
+          stepMeal.classList.add('completed');
+
+          stepConfirm.classList.remove('active');
+          stepConfirm.classList.add('completed');
+        });
 
         seats.forEach((seat) => {
           if (seat.classList.contains('booked')) {
@@ -544,6 +760,8 @@
             showSummaryForSeat(seatLabel);
           });
         });
+
+        setFlowState(false);
       })();
     </script>
   </body>
